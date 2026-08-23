@@ -90,7 +90,7 @@
             font-size: 14px;
         }
 
-        /* LOGO Y ESTRELLITAS TITILANTES */
+        /* LOGO / BADGE Y ESTRELLITAS TITILANTES */
         .logo-container {
             position: relative;
             margin-bottom: 15px;
@@ -98,27 +98,34 @@
             justify-content: center;
             align-items: center;
         }
-        .brand-logo {
-            width: 95px;
-            height: 95px;
-            object-fit: contain;
+        .brand-badge {
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             border: 2px solid #48cae4;
             background: #1c2541;
-            padding: 4px;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
             box-shadow: 0 0 15px rgba(72, 202, 228, 0.4);
             z-index: 2;
+            padding: 10px;
+            line-height: 1.2;
         }
         .star {
             position: absolute;
-            font-size: 22px;
+            font-size: 20px;
             color: #ffd700;
             opacity: 0;
             pointer-events: none;
             z-index: 3;
             animation: twinkle 1.2s infinite ease-in-out alternate;
         }
-        .star-1 { top: -12px; left: -10px; animation-delay: 0s; }
+        .star-1 { top: -10px; left: -10px; animation-delay: 0s; }
         .star-2 { top: -15px; right: -10px; animation-delay: 0.3s; }
         .star-3 { bottom: -10px; left: -15px; animation-delay: 0.6s; }
         .star-4 { bottom: -10px; right: -15px; animation-delay: 0.9s; }
@@ -139,7 +146,7 @@
     
     <div id="start-screen" class="overlay">
         <div class="logo-container">
-            <img src="IMG_20260822_215626.png" alt="Pro Glass Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/95/1c2541/ffffff?text=PRO+GLASS'">
+            <div class="brand-badge">PRO GLASS</div>
         </div>
         <h1>PRO GLASS JUMP</h1>
         <p>Toca <b>IZQUIERDA</b> o <b>DERECHA</b> para moverte.</p>
@@ -149,7 +156,7 @@
 
     <div id="gameover-screen" class="overlay" style="display: none;">
         <div class="logo-container">
-            <img src="IMG_20260822_215626.png" alt="Pro Glass Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/95/1c2541/ffffff?text=PRO+GLASS'">
+            <div class="brand-badge">PRO GLASS</div>
             <div id="stars-group" style="display: none;">
                 <span class="star star-1">★</span>
                 <span class="star star-2">✦</span>
