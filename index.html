@@ -7,7 +7,7 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body {
-            background: #0b1325;
+            background: #060b17;
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -20,77 +20,90 @@
         #game-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
-            height: 600px;
-            background: linear-gradient(to bottom, #0d1b3e, #0b1325);
+            max-width: 420px;
+            height: 650px;
+            background: linear-gradient(180deg, #0a1128 0%, #101f42 50%, #070d1e 100%);
             border: 3px solid #FF6600;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.25), inset 0 0 15px rgba(0, 0, 0, 0.5);
             overflow: hidden;
         }
         canvas { display: block; width: 100%; height: 100%; }
         .overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(11, 19, 37, 0.85);
+            background: rgba(6, 11, 23, 0.92);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 20px;
+            padding: 25px;
+            z-index: 10;
         }
-        h1 { color: #FF6600; font-size: 28px; margin-bottom: 10px; text-transform: uppercase; }
-        p { color: #94a3b8; font-size: 15px; margin-bottom: 20px; }
+        h1 { 
+            color: #FF6600; 
+            font-size: 26px; 
+            margin-bottom: 8px; 
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255,102,0,0.5);
+        }
+        p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; line-height: 1.4; }
         .btn {
-            background: #FF6600;
+            background: linear-gradient(135deg, #FF6600 0%, #d95300 100%);
             color: #fff;
             border: none;
-            padding: 12px 28px;
-            font-size: 18px;
+            padding: 14px 32px;
+            font-size: 17px;
             font-weight: bold;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .score-board {
             position: absolute;
-            top: 10px; left: 15px;
+            top: 12px; left: 15px;
             font-size: 18px;
             font-weight: bold;
             color: #00E5FF;
             z-index: 5;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 229, 255, 0.3);
         }
         .discount-badge {
             margin-top: 15px;
-            padding: 10px 15px;
+            padding: 12px 18px;
             background: rgba(0, 229, 255, 0.1);
             border: 1px solid #00E5FF;
-            border-radius: 8px;
+            border-radius: 10px;
             color: #00E5FF;
             font-weight: bold;
+            font-size: 15px;
         }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <div class="score-board">Altura: <span id="score">0</span>m</div>
-    <canvas id="canvas" width="400" height="600"></canvas>
+    <div class="score-board">ALTURA: <span id="score">0</span>m</div>
+    <canvas id="canvas" width="400" height="650"></canvas>
     
-    <!-- Pantalla Inicial -->
     <div id="start-screen" class="overlay">
-        <h1>Pro Glass Jump</h1>
-        <p>¡Toca los lados de la pantalla o usa las flechas para saltar sobre las plataformas!</p>
-        <button class="btn" onclick="startGame()">¡JUGAR AHORA!</button>
+        <h1>PRO GLASS JUMP</h1>
+        <p>Toca la mitad <b>IZQUIERDA</b> o <b>DERECHA</b> de la pantalla para mover la esfera y saltar.</p>
+        <p style="color: #00E5FF; font-size: 13px;">⚠️ Evita los cristales rotos: se destruyen al pisarlos y te hacen caer.</p>
+        <button class="btn" onclick="startGame()">¡JUGAR!</button>
     </div>
 
-    <!-- Pantalla Game Over -->
     <div id="gameover-screen" class="overlay" style="display: none;">
-        <h1>¡FIN DEL JUEGO!</h1>
-        <p>Alcanzaste una altura de: <br><strong id="final-score" style="font-size: 24px; color: #fff;">0m</strong></p>
+        <h1>¡CRISTAL ROTO!</h1>
+        <p>Alcanzaste una altura de: <br><strong id="final-score" style="font-size: 26px; color: #fff;">0m</strong></p>
         <div id="prize-info" class="discount-badge"></div>
-        <button class="btn" style="margin-top: 20px;" onclick="startGame()">INTENTAR DE NUEVO</button>
+        <button class="btn" style="margin-top: 20px;" onclick="startGame()">REINTENTAR</button>
     </div>
 </div>
 
@@ -103,28 +116,32 @@
     const gameoverScreen = document.getElementById('gameover-screen');
     const prizeInfo = document.getElementById('prize-info');
 
-    let player, platforms, score, cameraY, gameRunning, keys;
+    let player, platforms, score, cameraY, gameRunning, keys, particles;
 
     class Player {
         constructor() {
-            this.width = 30;
-            this.height = 30;
-            this.x = canvas.width / 2 - 15;
-            this.y = canvas.height - 100;
+            this.width = 28;
+            this.height = 28;
+            this.x = canvas.width / 2 - 14;
+            this.y = canvas.height - 120;
             this.vy = 0;
             this.vx = 0;
-            this.jumpForce = -10.5;
-            this.gravity = 0.4;
+            this.jumpForce = -11;
+            this.gravity = 0.42;
         }
 
         draw() {
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = '#FF6600';
             ctx.fillStyle = '#FF6600';
             ctx.beginPath();
-            ctx.arc(this.x + 15, this.y - cameraY + 15, 15, 0, Math.PI * 2);
+            ctx.arc(this.x + 14, this.y - cameraY + 14, 14, 0, Math.PI * 2);
             ctx.fill();
+            
+            ctx.shadowBlur = 0;
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
-            ctx.arc(this.x + 10, this.y - cameraY + 10, 4, 0, Math.PI * 2);
+            ctx.arc(this.x + 9, this.y - cameraY + 9, 4, 0, Math.PI * 2);
             ctx.fill();
         }
 
@@ -139,35 +156,101 @@
     }
 
     class Platform {
-        constructor(x, y) {
+        constructor(x, y, isCracked = false) {
             this.x = x;
             this.y = y;
-            this.width = 70;
-            this.height = 14;
+            this.width = 80;
+            this.height = 18;
+            this.isCracked = isCracked;
+            this.broken = false;
         }
 
         draw() {
-            ctx.fillStyle = '#003366';
-            ctx.fillRect(this.x, this.y - cameraY, this.width, this.height);
-            ctx.strokeStyle = '#00E5FF';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(this.x, this.y - cameraY, this.width, this.height);
+            if (this.broken) return;
+
+            ctx.save();
+            ctx.translate(this.x, this.y - cameraY);
+
+            if (this.isCracked) {
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.35)';
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 2;
+                this.drawWindshieldShape();
+
+                ctx.strokeStyle = '#fca5a5';
+                ctx.beginPath();
+                ctx.moveTo(15, 5); ctx.lineTo(40, 12); ctx.lineTo(65, 4);
+                ctx.moveTo(30, 14); ctx.lineTo(45, 3);
+                ctx.stroke();
+            } else {
+                ctx.fillStyle = 'rgba(0, 51, 102, 0.7)';
+                ctx.strokeStyle = '#00E5FF';
+                ctx.lineWidth = 2;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = '#00E5FF';
+                this.drawWindshieldShape();
+
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillRect(4, 2, this.width - 8, 3);
+            }
+
+            ctx.restore();
+        }
+
+        drawWindshieldShape() {
+            ctx.beginPath();
+            ctx.moveTo(8, 0);
+            ctx.lineTo(this.width - 8, 0);
+            ctx.quadraticCurveTo(this.width, 0, this.width, 6);
+            ctx.lineTo(this.width - 4, this.height - 4);
+            ctx.quadraticCurveTo(this.width - 6, this.height, this.width - 12, this.height);
+            ctx.lineTo(12, this.height);
+            ctx.quadraticCurveTo(6, this.height, 4, this.height - 4);
+            ctx.lineTo(0, 6);
+            ctx.quadraticCurveTo(0, 0, 8, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+    }
+
+    class Particle {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.vx = (Math.random() - 0.5) * 6;
+            this.vy = (Math.random() - 0.5) * 6;
+            this.size = Math.random() * 4 + 2;
+            this.life = 25;
+        }
+
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.life--;
+        }
+
+        draw() {
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(this.x, this.y - cameraY, this.size, this.size);
         }
     }
 
     function init() {
         player = new Player();
         platforms = [];
+        particles = [];
         score = 0;
         cameraY = 0;
         keys = {};
 
-        platforms.push(new Platform(canvas.width / 2 - 35, canvas.height - 50));
+        platforms.push(new Platform(canvas.width / 2 - 40, canvas.height - 50, false));
 
-        for (let i = 0; i < 7; i++) {
-            let x = Math.random() * (canvas.width - 70);
-            let y = canvas.height - 120 - (i * 80);
-            platforms.push(new Platform(x, y));
+        for (let i = 0; i < 8; i++) {
+            let x = Math.random() * (canvas.width - 80);
+            let y = canvas.height - 130 - (i * 75);
+            let isCracked = i > 1 && Math.random() < 0.3;
+            platforms.push(new Platform(x, y, isCracked));
         }
     }
 
@@ -179,16 +262,22 @@
         loop();
     }
 
+    function createBreakParticles(x, y) {
+        for (let i = 0; i < 15; i++) {
+            particles.push(new Particle(x + 40, y + 9));
+        }
+    }
+
     function gameOver() {
         gameRunning = false;
         finalScoreEl.innerText = score + 'm';
         
         if(score >= 1000) {
-            prizeInfo.innerText = "🎉 ¡Ganaste un 5% de Descuento en tu factura!";
+            prizeInfo.innerText = "🎉 ¡Ganaste un 5% de Descuento!";
         } else if(score >= 600) {
-            prizeInfo.innerText = "🎉 ¡Ganaste un 3% de Descuento en tu factura!";
+            prizeInfo.innerText = "🎉 ¡Ganaste un 3% de Descuento!";
         } else if(score >= 300) {
-            prizeInfo.innerText = "🎉 ¡Ganaste un 2% de Descuento en tu factura!";
+            prizeInfo.innerText = "🎉 ¡Ganaste un 2% de Descuento!";
         } else {
             prizeInfo.innerText = "¡Sigue intentándolo para alcanzar un descuento!";
         }
@@ -199,39 +288,47 @@
     function loop() {
         if (!gameRunning) return;
 
-        if (keys['ArrowLeft'] || keys['KeyA']) player.vx = -5;
-        else if (keys['ArrowRight'] || keys['KeyD']) player.vx = 5;
-        else player.vx = 0;
+        if (keys['ArrowLeft'] || keys['KeyA']) player.vx = -5.5;
+        else if (keys['ArrowRight'] || keys['KeyD']) player.vx = 5.5;
 
         player.update();
 
         if (player.y - cameraY < canvas.height / 2) {
             cameraY = player.y - canvas.height / 2;
-            score = Math.max(score, Math.floor((canvas.height - 100 - player.y) / 10));
+            score = Math.max(score, Math.floor((canvas.height - 120 - player.y) / 10));
             scoreEl.innerText = score;
         }
 
         if (player.vy > 0) {
             platforms.forEach(p => {
-                if (
+                if (!p.broken &&
                     player.x + player.width > p.x &&
                     player.x < p.x + p.width &&
                     player.y + player.height >= p.y &&
                     player.y + player.height <= p.y + p.height + player.vy
                 ) {
-                    player.vy = player.jumpForce;
+                    if (p.isCracked) {
+                        p.broken = true;
+                        createBreakParticles(p.x, p.y);
+                        player.vy = 2;
+                    } else {
+                        player.vy = player.jumpForce;
+                    }
                 }
             });
         }
 
         let highestPlatform = platforms[platforms.length - 1];
         if (highestPlatform.y - cameraY > -100) {
-            let x = Math.random() * (canvas.width - 70);
-            let y = highestPlatform.y - 80;
-            platforms.push(new Platform(x, y));
+            let x = Math.random() * (canvas.width - 80);
+            let y = highestPlatform.y - 75;
+            let isCracked = Math.random() < 0.32;
+            platforms.push(new Platform(x, y, isCracked));
         }
 
         platforms = platforms.filter(p => p.y - cameraY < canvas.height + 50);
+        particles.forEach(p => p.update());
+        particles = particles.filter(p => p.life > 0);
 
         if (player.y - cameraY > canvas.height) {
             gameOver();
@@ -240,6 +337,7 @@
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         platforms.forEach(p => p.draw());
+        particles.forEach(p => p.draw());
         player.draw();
 
         requestAnimationFrame(loop);
@@ -248,13 +346,14 @@
     window.addEventListener('keydown', e => keys[e.code] = true);
     window.addEventListener('keyup', e => keys[e.code] = false);
 
-    canvas.addEventListener('touchstart', e => {
-        let touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
-        if (touchX < canvas.width / 2) player.vx = -5;
-        else player.vx = 5;
+    window.addEventListener('touchstart', e => {
+        let touchX = e.touches[0].clientX;
+        let screenWidth = window.innerWidth;
+        if (touchX < screenWidth / 2) player.vx = -5.5;
+        else player.vx = 5.5;
     });
 
-    canvas.addEventListener('touchend', () => player.vx = 0);
+    window.addEventListener('touchend', () => player.vx = 0);
 </script>
 
 </body>
