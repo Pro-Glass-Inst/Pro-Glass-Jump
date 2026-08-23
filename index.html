@@ -339,8 +339,8 @@
         platforms.push(new Platform(lastPlatformX, lastPlatformY, false, 0, false));
 
         for (let i = 0; i < 9; i++) {
-            lastPlatformY -= 80; // Distancia vertical estrictamente controlada
-            let maxOffset = 110;  // Distancia horizontal estrictamente controlada
+            lastPlatformY -= 85;
+            let maxOffset = 110;
             let minX = Math.max(10, lastPlatformX - maxOffset);
             let maxX = Math.min(canvas.width - 85, lastPlatformX + maxOffset);
             lastPlatformX = Math.random() * (maxX - minX) + minX;
@@ -420,24 +420,27 @@
         }
 
         while (lastPlatformY - cameraY > -100) {
-            lastPlatformY -= 80;
+            // Distancia vertical progresiva (aumenta de 85px a 120px según el score)
+            let dynamicGap = Math.min(85 + (score / 20), 120);
+            lastPlatformY -= dynamicGap;
 
             let isCracked = false;
             if (!lastWasCracked) {
-                let crackedChance = Math.min(0.08 + (score / 1500), 0.35);
+                let crackedChance = Math.min(0.08 + (score / 1200), 0.40);
                 isCracked = Math.random() < crackedChance;
             }
             lastWasCracked = isCracked;
 
             let moveSpeed = 0;
-            if (score > 150 && Math.random() < Math.min(0.25 + (score / 1200), 0.6)) {
-                moveSpeed = 1.8 + Math.min(score / 400, 2.5);
+            if (score > 100 && Math.random() < Math.min(0.3 + (score / 1000), 0.7)) {
+                moveSpeed = 1.8 + Math.min(score / 350, 3.2);
             }
 
-            let isSmall = score > 300 && Math.random() < Math.min((score - 300) / 1000, 0.5);
+            let isSmall = score > 250 && Math.random() < Math.min((score - 250) / 800, 0.55);
             let width = isSmall ? 50 : 75;
 
-            let maxOffset = 110;
+            // Desplazamiento horizontal progresivo
+            let maxOffset = Math.min(110 + (score / 15), 150);
             let minX = Math.max(10, lastPlatformX - maxOffset);
             let maxX = Math.min(canvas.width - width - 10, lastPlatformX + maxOffset);
             lastPlatformX = Math.random() * (maxX - minX) + minX;
