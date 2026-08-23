@@ -189,7 +189,7 @@
             this.y = canvas.height - 120;
             this.vy = 0;
             this.vx = 0;
-            this.jumpForce = -12.5;
+            this.jumpForce = -12.0;
             this.gravity = 0.45;
         }
 
@@ -222,7 +222,7 @@
         constructor(x, y, isCracked = false, moveSpeed = 0, isSmall = false) {
             this.x = x;
             this.y = y;
-            this.width = isSmall ? 55 : 75;
+            this.width = isSmall ? 50 : 75;
             this.height = 16;
             this.isCracked = isCracked;
             this.broken = false;
@@ -334,13 +334,13 @@
         keys = {};
         lastWasCracked = false;
 
-        lastPlatformX = canvas.width / 2 - 40;
+        lastPlatformX = canvas.width / 2 - 37.5;
         lastPlatformY = canvas.height - 50;
         platforms.push(new Platform(lastPlatformX, lastPlatformY, false, 0, false));
 
         for (let i = 0; i < 9; i++) {
-            lastPlatformY -= 60;
-            let maxOffset = 140;
+            lastPlatformY -= 80; // Distancia vertical estrictamente controlada
+            let maxOffset = 110;  // Distancia horizontal estrictamente controlada
             let minX = Math.max(10, lastPlatformX - maxOffset);
             let maxX = Math.min(canvas.width - 85, lastPlatformX + maxOffset);
             lastPlatformX = Math.random() * (maxX - minX) + minX;
@@ -388,8 +388,8 @@
     function loop() {
         if (!gameRunning) return;
 
-        if (keys['ArrowLeft'] || keys['KeyA']) player.vx = -7.0;
-        else if (keys['ArrowRight'] || keys['KeyD']) player.vx = 7.0;
+        if (keys['ArrowLeft'] || keys['KeyA']) player.vx = -6.0;
+        else if (keys['ArrowRight'] || keys['KeyD']) player.vx = 6.0;
 
         player.update();
 
@@ -420,7 +420,7 @@
         }
 
         while (lastPlatformY - cameraY > -100) {
-            lastPlatformY -= 60;
+            lastPlatformY -= 80;
 
             let isCracked = false;
             if (!lastWasCracked) {
@@ -430,14 +430,14 @@
             lastWasCracked = isCracked;
 
             let moveSpeed = 0;
-            if (score > 200 && Math.random() < Math.min(0.2 + (score / 1500), 0.5)) {
-                moveSpeed = 1.2 + Math.min(score / 500, 1.8);
+            if (score > 150 && Math.random() < Math.min(0.25 + (score / 1200), 0.6)) {
+                moveSpeed = 1.8 + Math.min(score / 400, 2.5);
             }
 
-            let isSmall = score > 400 && Math.random() < Math.min((score - 400) / 1000, 0.4);
-            let width = isSmall ? 55 : 75;
+            let isSmall = score > 300 && Math.random() < Math.min((score - 300) / 1000, 0.5);
+            let width = isSmall ? 50 : 75;
 
-            let maxOffset = 150;
+            let maxOffset = 110;
             let minX = Math.max(10, lastPlatformX - maxOffset);
             let maxX = Math.min(canvas.width - width - 10, lastPlatformX + maxOffset);
             lastPlatformX = Math.random() * (maxX - minX) + minX;
@@ -472,8 +472,8 @@
     window.addEventListener('touchstart', e => {
         let touchX = e.touches[0].clientX;
         let screenWidth = window.innerWidth;
-        if (touchX < screenWidth / 2) player.vx = -7.0;
-        else player.vx = 7.0;
+        if (touchX < screenWidth / 2) player.vx = -6.0;
+        else player.vx = 6.0;
     });
 
     window.addEventListener('touchend', () => player.vx = 0);
