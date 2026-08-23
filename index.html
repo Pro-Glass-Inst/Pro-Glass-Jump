@@ -179,7 +179,7 @@
     const prizeInfo = document.getElementById('prize-info');
     const starsGroup = document.getElementById('stars-group');
 
-    let player, platforms, score, cameraY, gameRunning, keys, particles, lastPlatformY;
+    let player, platforms, score, cameraY, gameRunning, keys, particles, lastPlatformY, lastPlatformX, lastWasCracked;
 
     class Player {
         constructor() {
@@ -189,7 +189,7 @@
             this.y = canvas.height - 120;
             this.vy = 0;
             this.vx = 0;
-            this.jumpForce = -12.0;
+            this.jumpForce = -12.5;
             this.gravity = 0.45;
         }
 
@@ -332,14 +332,20 @@
         score = 0;
         cameraY = 0;
         keys = {};
+        lastWasCracked = false;
 
-        platforms.push(new Platform(canvas.width / 2 - 40, canvas.height - 50, false, 0, false));
+        lastPlatformX = canvas.width / 2 - 40;
+        lastPlatformY = canvas.height - 50;
+        platforms.push(new Platform(lastPlatformX, lastPlatformY, false, 0, false));
 
-        lastPlatformY = canvas.height - 115;
         for (let i = 0; i < 9; i++) {
-            let x = Math.random() * (canvas.width - 75);
-            platforms.push(new Platform(x, lastPlatformY, false, 0, false));
-            lastPlatformY -= 65;
+            lastPlatformY -= 60;
+            let maxOffset = 140;
+            let minX = Math.max(10, lastPlatformX - maxOffset);
+            let maxX = Math.min(canvas.width - 85, lastPlatformX + maxOffset);
+            lastPlatformX = Math.random() * (maxX - minX) + minX;
+
+            platforms.push(new Platform(lastPlatformX, lastPlatformY, false, 0, false));
         }
     }
 
@@ -382,8 +388,8 @@
     function loop() {
         if (!gameRunning) return;
 
-        if (keys['ArrowLeft'] || keys['KeyA']) player.vx = -5.5;
-        else if (keys['ArrowRight'] || keys['KeyD']) player.vx = 5.5;
+        if (keys['ArrowLeft'] || keys['KeyA']) player.vx = -7.0;
+        else if (keys['ArrowRight'] || keys['KeyD']) player.vx = 7.0;
 
         player.update();
 
@@ -414,10 +420,14 @@
         }
 
         while (lastPlatformY - cameraY > -100) {
-            lastPlatformY -= 65; 
+            lastPlatformY -= 60;
 
-            let crackedChance = Math.min(0.08 + (score / 1500), 0.40);
-            let isCracked = Math.random() < crackedChance;
+            let isCracked = false;
+            if (!lastWasCracked) {
+                let crackedChance = Math.min(0.08 + (score / 1500), 0.35);
+                isCracked = Math.random() < crackedChance;
+            }
+            lastWasCracked = isCracked;
 
             let moveSpeed = 0;
             if (score > 200 && Math.random() < Math.min(0.2 + (score / 1500), 0.5)) {
@@ -425,11 +435,14 @@
             }
 
             let isSmall = score > 400 && Math.random() < Math.min((score - 400) / 1000, 0.4);
-
             let width = isSmall ? 55 : 75;
-            let x = Math.random() * (canvas.width - width);
 
-            platforms.push(new Platform(x, lastPlatformY, isCracked, moveSpeed, isSmall));
+            let maxOffset = 150;
+            let minX = Math.max(10, lastPlatformX - maxOffset);
+            let maxX = Math.min(canvas.width - width - 10, lastPlatformX + maxOffset);
+            lastPlatformX = Math.random() * (maxX - minX) + minX;
+
+            platforms.push(new Platform(lastPlatformX, lastPlatformY, isCracked, moveSpeed, isSmall));
         }
 
         platforms = platforms.filter(p => p.y - cameraY < canvas.height + 50);
@@ -459,8 +472,8 @@
     window.addEventListener('touchstart', e => {
         let touchX = e.touches[0].clientX;
         let screenWidth = window.innerWidth;
-        if (touchX < screenWidth / 2) player.vx = -5.5;
-        else player.vx = 5.5;
+        if (touchX < screenWidth / 2) player.vx = -7.0;
+        else player.vx = 7.0;
     });
 
     window.addEventListener('touchend', () => player.vx = 0);
