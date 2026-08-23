@@ -7,7 +7,7 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body {
-            background-color: #121212;
+            background-color: #0d1b2a;
             color: #ffffff;
             font-family: 'Segoe UI', Roboto, Arial, sans-serif;
             display: flex;
@@ -22,17 +22,17 @@
             width: 100%;
             max-width: 420px;
             height: 650px;
-            background-color: #1a1a1a;
-            border: 3px solid #ff6600;
+            background-color: #0b132b;
+            border: 3px solid #e63946;
             border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8);
             overflow: hidden;
         }
         canvas { display: block; width: 100%; height: 100%; }
         .overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(18, 18, 18, 0.94);
+            background: rgba(11, 19, 43, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -42,29 +42,30 @@
             z-index: 10;
         }
         h1 { 
-            color: #ff6600; 
+            color: #ffffff; 
             font-size: 28px; 
             font-weight: 800;
             margin-bottom: 8px; 
             text-transform: uppercase;
             letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(230, 57, 70, 0.6);
         }
-        p { color: #cccccc; font-size: 14px; margin-bottom: 20px; line-height: 1.4; }
+        p { color: #e0e1dd; font-size: 14px; margin-bottom: 20px; line-height: 1.4; }
         .btn {
-            background-color: #ff6600;
+            background-color: #e63946;
             color: #ffffff;
-            border: none;
+            border: 2px solid #ffffff;
             padding: 14px 32px;
             font-size: 17px;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(255, 102, 0, 0.4);
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.5);
             text-transform: uppercase;
             letter-spacing: 1px;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
-        .btn:active { background-color: #e05500; }
+        .btn:active { background-color: #c1121f; }
         .score-board {
             position: absolute;
             top: 12px; left: 15px;
@@ -72,17 +73,17 @@
             font-weight: bold;
             color: #ffffff;
             z-index: 5;
-            background: #262626;
+            background: #1c2541;
             padding: 6px 14px;
             border-radius: 6px;
-            border: 1px solid #ff6600;
+            border: 1px solid #48cae4;
         }
-        .score-board span { color: #ff6600; }
+        .score-board span { color: #48cae4; }
         .discount-badge {
             margin-top: 15px;
             padding: 12px 18px;
-            background: #262626;
-            border: 1px solid #ff6600;
+            background: #1c2541;
+            border: 1px solid #e63946;
             border-radius: 8px;
             color: #ffffff;
             font-weight: bold;
@@ -98,14 +99,14 @@
     
     <div id="start-screen" class="overlay">
         <h1>PRO GLASS JUMP</h1>
-        <p>Toca la mitad <b>IZQUIERDA</b> o <b>DERECHA</b> de la pantalla para moverte.</p>
-        <p style="color: #ff6600; font-size: 13px;">⚠️ Cristales fisurados: dan <b>UN SOLO SALTO</b> antes de destruirse.</p>
+        <p>Toca <b>IZQUIERDA</b> o <b>DERECHA</b> para moverte.</p>
+        <p style="color: #e63946; font-size: 13px; font-weight: bold;">⚠️ ¡Dificultad progresiva extrema! Supera los 1000m si puedes.</p>
         <button class="btn" onclick="startGame()">¡JUGAR!</button>
     </div>
 
     <div id="gameover-screen" class="overlay" style="display: none;">
         <h1>¡TE HAS CAÍDO!</h1>
-        <p>Alcanzaste una altura de: <br><strong id="final-score" style="font-size: 26px; color: #ff6600;">0m</strong></p>
+        <p>Alcanzaste una altura de: <br><strong id="final-score" style="font-size: 26px; color: #48cae4;">0m</strong></p>
         <div id="prize-info" class="discount-badge"></div>
         <button class="btn" style="margin-top: 20px;" onclick="startGame()">REINTENTAR</button>
     </div>
@@ -124,25 +125,29 @@
 
     class Player {
         constructor() {
-            this.width = 28;
-            this.height = 28;
-            this.x = canvas.width / 2 - 14;
+            this.width = 24;
+            this.height = 24;
+            this.x = canvas.width / 2 - 12;
             this.y = canvas.height - 120;
             this.vy = 0;
             this.vx = 0;
-            this.jumpForce = -11.5;
-            this.gravity = 0.42;
+            this.jumpForce = -11.0;
+            this.gravity = 0.48;
         }
 
         draw() {
-            ctx.fillStyle = '#ff6600';
+            // Esfera Roja con borde blanco y destello
+            ctx.fillStyle = '#e63946';
             ctx.beginPath();
-            ctx.arc(this.x + 14, this.y - cameraY + 14, 14, 0, Math.PI * 2);
+            ctx.arc(this.x + 12, this.y - cameraY + 12, 12, 0, Math.PI * 2);
             ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
             
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
-            ctx.arc(this.x + 9, this.y - cameraY + 9, 4, 0, Math.PI * 2);
+            ctx.arc(this.x + 8, this.y - cameraY + 8, 3.5, 0, Math.PI * 2);
             ctx.fill();
         }
 
@@ -157,13 +162,28 @@
     }
 
     class Platform {
-        constructor(x, y, isCracked = false) {
+        constructor(x, y, isCracked = false, moveSpeed = 0, isSmall = false) {
             this.x = x;
             this.y = y;
-            this.width = 80;
-            this.height = 18;
+            this.width = isSmall ? 50 : 75; // Reducción de ancho en niveles altos
+            this.height = 16;
             this.isCracked = isCracked;
             this.broken = false;
+            this.moveSpeed = moveSpeed;
+            this.direction = Math.random() < 0.5 ? 1 : -1;
+        }
+
+        update() {
+            if (this.moveSpeed > 0) {
+                this.x += this.moveSpeed * this.direction;
+                if (this.x <= 0) {
+                    this.x = 0;
+                    this.direction = 1;
+                } else if (this.x + this.width >= canvas.width) {
+                    this.x = canvas.width - this.width;
+                    this.direction = -1;
+                }
+            }
         }
 
         draw() {
@@ -173,24 +193,25 @@
             ctx.translate(this.x, this.y - cameraY);
 
             if (this.isCracked) {
-                ctx.fillStyle = 'rgba(255, 102, 0, 0.25)';
-                ctx.strokeStyle = '#ff6600';
+                // Parabrisas Fisurado: Tono rojo transparente con fisuras blancas
+                ctx.fillStyle = 'rgba(230, 57, 70, 0.25)';
+                ctx.strokeStyle = '#e63946';
                 ctx.lineWidth = 2;
                 this.drawWindshieldShape();
 
-                ctx.strokeStyle = '#ffa366';
+                ctx.strokeStyle = '#ffffff';
                 ctx.beginPath();
-                ctx.moveTo(15, 5); ctx.lineTo(40, 12); ctx.lineTo(65, 4);
-                ctx.moveTo(30, 14); ctx.lineTo(45, 3);
+                ctx.moveTo(10, 4); ctx.lineTo(this.width * 0.5, 10); ctx.lineTo(this.width - 10, 3);
                 ctx.stroke();
             } else {
-                ctx.fillStyle = '#262626';
-                ctx.strokeStyle = '#cccccc';
+                // Parabrisas Seguro: Marco plateado/blanco con franja azul
+                ctx.fillStyle = '#1c2541';
+                ctx.strokeStyle = '#e0e1dd';
                 ctx.lineWidth = 2;
                 this.drawWindshieldShape();
 
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(4, 2, this.width - 8, 3);
+                ctx.fillStyle = '#48cae4';
+                ctx.fillRect(4, 2, Math.max(0, this.width - 8), 3);
             }
 
             ctx.restore();
@@ -198,15 +219,15 @@
 
         drawWindshieldShape() {
             ctx.beginPath();
-            ctx.moveTo(8, 0);
-            ctx.lineTo(this.width - 8, 0);
-            ctx.quadraticCurveTo(this.width, 0, this.width, 6);
-            ctx.lineTo(this.width - 4, this.height - 4);
-            ctx.quadraticCurveTo(this.width - 6, this.height, this.width - 12, this.height);
-            ctx.lineTo(12, this.height);
-            ctx.quadraticCurveTo(6, this.height, 4, this.height - 4);
-            ctx.lineTo(0, 6);
-            ctx.quadraticCurveTo(0, 0, 8, 0);
+            ctx.moveTo(6, 0);
+            ctx.lineTo(this.width - 6, 0);
+            ctx.quadraticCurveTo(this.width, 0, this.width, 5);
+            ctx.lineTo(this.width - 3, this.height - 3);
+            ctx.quadraticCurveTo(this.width - 5, this.height, this.width - 10, this.height);
+            ctx.lineTo(10, this.height);
+            ctx.quadraticCurveTo(5, this.height, 3, this.height - 3);
+            ctx.lineTo(0, 5);
+            ctx.quadraticCurveTo(0, 0, 6, 0);
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
@@ -230,20 +251,20 @@
         }
 
         draw() {
-            ctx.fillStyle = '#ff6600';
+            ctx.fillStyle = '#e63946';
             ctx.fillRect(this.x, this.y - cameraY, this.size, this.size);
         }
     }
 
     function drawBackgroundText() {
         ctx.save();
-        ctx.fillStyle = '#222222';
-        ctx.font = '900 32px "Segoe UI", Roboto, sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+        ctx.font = '900 42px "Segoe UI", Roboto, sans-serif'; // Texto más grande y visible
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
-        let startY = - (cameraY * 0.3) % 200;
-        for (let y = startY - 200; y < canvas.height + 200; y += 200) {
+        let startY = - (cameraY * 0.3) % 220;
+        for (let y = startY - 220; y < canvas.height + 220; y += 220) {
             ctx.fillText('PRO GLASS JUMP', canvas.width / 2, y);
         }
         ctx.restore();
@@ -257,13 +278,13 @@
         cameraY = 0;
         keys = {};
 
-        platforms.push(new Platform(canvas.width / 2 - 40, canvas.height - 50, false));
+        platforms.push(new Platform(canvas.width / 2 - 40, canvas.height - 50, false, 0, false));
 
-        for (let i = 0; i < 9; i++) {
-            let x = Math.random() * (canvas.width - 80);
-            let y = canvas.height - 115 - (i * 65);
-            let isCracked = i > 1 && Math.random() < 0.25;
-            platforms.push(new Platform(x, y, isCracked));
+        let currentY = canvas.height - 130;
+        for (let i = 0; i < 8; i++) {
+            let x = Math.random() * (canvas.width - 75);
+            platforms.push(new Platform(x, currentY, false, 0, false));
+            currentY -= 75;
         }
     }
 
@@ -275,9 +296,9 @@
         loop();
     }
 
-    function createBreakParticles(x, y) {
+    function createBreakParticles(x, y, width) {
         for (let i = 0; i < 15; i++) {
-            particles.push(new Particle(x + 40, y + 9));
+            particles.push(new Particle(x + (width / 2), y + 8));
         }
     }
 
@@ -286,13 +307,13 @@
         finalScoreEl.innerText = score + 'm';
         
         if(score >= 1000) {
-            prizeInfo.innerText = "🎉 ¡Ganaste un 5% de Descuento!";
+            prizeInfo.innerText = "🏆 ¡INCREÍBLE! Ganaste el 5% de Descuento";
         } else if(score >= 600) {
-            prizeInfo.innerText = "🎉 ¡Ganaste un 3% de Descuento!";
+            prizeInfo.innerText = "🎉 ¡Excelente! Ganaste un 3% de Descuento";
         } else if(score >= 300) {
-            prizeInfo.innerText = "🎉 ¡Ganaste un 2% de Descuento!";
+            prizeInfo.innerText = "🎉 ¡Bien hecho! Ganaste un 2% de Descuento";
         } else {
-            prizeInfo.innerText = "¡Sigue intentándolo para alcanzar un descuento!";
+            prizeInfo.innerText = "¡Casi! Sigue practicando para ganar tu descuento.";
         }
 
         gameoverScreen.style.display = 'flex';
@@ -301,8 +322,8 @@
     function loop() {
         if (!gameRunning) return;
 
-        if (keys['ArrowLeft'] || keys['KeyA']) player.vx = -5.5;
-        else if (keys['ArrowRight'] || keys['KeyD']) player.vx = 5.5;
+        if (keys['ArrowLeft'] || keys['KeyA']) player.vx = -5.0;
+        else if (keys['ArrowRight'] || keys['KeyD']) player.vx = 5.0;
 
         player.update();
 
@@ -311,6 +332,8 @@
             score = Math.max(score, Math.floor((canvas.height - 120 - player.y) / 10));
             scoreEl.innerText = score;
         }
+
+        platforms.forEach(p => p.update());
 
         if (player.vy > 0) {
             platforms.forEach(p => {
@@ -324,18 +347,36 @@
                     
                     if (p.isCracked) {
                         p.broken = true;
-                        createBreakParticles(p.x, p.y);
+                        createBreakParticles(p.x, p.y, p.width);
                     }
                 }
             });
         }
 
+        // LÓGICA DE DIFICULTAD PROGRESIVA
         let highestPlatform = platforms[platforms.length - 1];
         if (highestPlatform.y - cameraY > -100) {
-            let x = Math.random() * (canvas.width - 80);
-            let y = highestPlatform.y - 65;
-            let isCracked = Math.random() < 0.25;
-            platforms.push(new Platform(x, y, isCracked));
+            // 1. La distancia entre plataformas aumenta gradualmente (75px a 115px)
+            let gap = 75 + Math.min(score / 15, 40); 
+            let y = highestPlatform.y - gap;
+
+            // 2. Probabilidad de cristal falso/rotación sube hasta un 65%
+            let crackedChance = Math.min(0.10 + (score / 1200), 0.65);
+            let isCracked = Math.random() < crackedChance;
+
+            // 3. Velocidad de plataformas móviles tras los 200m
+            let moveSpeed = 0;
+            if (score > 200 && Math.random() < Math.min(0.2 + (score / 1500), 0.7)) {
+                moveSpeed = 1.2 + Math.min(score / 400, 2.5);
+            }
+
+            // 4. Aparición de plataformas angostas (50px) tras los 350m
+            let isSmall = score > 350 && Math.random() < Math.min((score - 350) / 1000, 0.6);
+
+            let width = isSmall ? 50 : 75;
+            let x = Math.random() * (canvas.width - width);
+
+            platforms.push(new Platform(x, y, isCracked, moveSpeed, isSmall));
         }
 
         platforms = platforms.filter(p => p.y - cameraY < canvas.height + 50);
@@ -347,7 +388,8 @@
             return;
         }
 
-        ctx.fillStyle = '#1a1a1a';
+        // Fondo Azul Profundo
+        ctx.fillStyle = '#0b132b';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         drawBackgroundText();
@@ -365,8 +407,8 @@
     window.addEventListener('touchstart', e => {
         let touchX = e.touches[0].clientX;
         let screenWidth = window.innerWidth;
-        if (touchX < screenWidth / 2) player.vx = -5.5;
-        else player.vx = 5.5;
+        if (touchX < screenWidth / 2) player.vx = -5.0;
+        else player.vx = 5.0;
     });
 
     window.addEventListener('touchend', () => player.vx = 0);
