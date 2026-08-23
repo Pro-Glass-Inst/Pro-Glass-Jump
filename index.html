@@ -154,16 +154,13 @@
     </div>
 
     <div id="gameover-screen" class="overlay" style="display: none;">
-        <div class="logo-container">
-            <div class="brand-badge">PRO GLASS</div>
-            <div id="stars-group" style="display: none;">
-                <span class="star star-1">★</span>
-                <span class="star star-2">✦</span>
-                <span class="star star-3">★</span>
-                <span class="star star-4">✦</span>
-                <span class="star star-5">✨</span>
-                <span class="star star-6">✨</span>
-            </div>
+        <div class="logo-container" id="stars-group" style="display: none; height: 30px;">
+            <span class="star star-1">★</span>
+            <span class="star star-2">✦</span>
+            <span class="star star-3">★</span>
+            <span class="star star-4">✦</span>
+            <span class="star star-5">✨</span>
+            <span class="star star-6">✨</span>
         </div>
         <h1>¡FIN DEL JUEGO!</h1>
         <p>Alcanzaste una altura de: <br><strong id="final-score" style="font-size: 26px; color: #48cae4;">0m</strong></p>
@@ -182,7 +179,7 @@
     const prizeInfo = document.getElementById('prize-info');
     const starsGroup = document.getElementById('stars-group');
 
-    let player, platforms, score, cameraY, gameRunning, keys, particles;
+    let player, platforms, score, cameraY, gameRunning, keys, particles, lastPlatformY;
 
     class Player {
         constructor() {
@@ -338,11 +335,11 @@
 
         platforms.push(new Platform(canvas.width / 2 - 40, canvas.height - 50, false, 0, false));
 
-        let currentY = canvas.height - 130;
+        lastPlatformY = canvas.height - 130;
         for (let i = 0; i < 8; i++) {
             let x = Math.random() * (canvas.width - 75);
-            platforms.push(new Platform(x, currentY, false, 0, false));
-            currentY -= 75;
+            platforms.push(new Platform(x, lastPlatformY, false, 0, false));
+            lastPlatformY -= 75;
         }
     }
 
@@ -365,7 +362,7 @@
         finalScoreEl.innerText = score + 'm';
         
         if(score >= 300) {
-            starsGroup.style.display = 'block';
+            starsGroup.style.display = 'flex';
             
             if(score >= 1000) {
                 prizeInfo.innerText = "🏆 ¡INCREÍBLE! Ganaste el 5% de Descuento";
@@ -391,7 +388,7 @@
         player.update();
 
         if (player.y - cameraY < canvas.height / 2) {
-            cameraY = player.y - cameraY < canvas.height / 2 ? player.y - cameraY : cameraY;
+            cameraY = player.y - canvas.height / 2;
             score = Math.max(score, Math.floor((canvas.height - 120 - player.y) / 10));
             scoreEl.innerText = score;
         }
@@ -416,25 +413,24 @@
             });
         }
 
-        let highestPlatform = platforms[platforms.length - 1];
-        if (highestPlatform.y - cameraY > -100) {
-            let gap = 75 + Math.min(score / 15, 40); 
-            let y = highestPlatform.y - gap;
+        while (lastPlatformY - cameraY > -100) {
+            let gap = 75 + Math.min(score / 15, 35); 
+            lastPlatformY -= gap;
 
-            let crackedChance = Math.min(0.10 + (score / 1200), 0.65);
+            let crackedChance = Math.min(0.08 + (score / 1500), 0.50);
             let isCracked = Math.random() < crackedChance;
 
             let moveSpeed = 0;
-            if (score > 200 && Math.random() < Math.min(0.2 + (score / 1500), 0.7)) {
-                moveSpeed = 1.2 + Math.min(score / 400, 2.5);
+            if (score > 200 && Math.random() < Math.min(0.2 + (score / 1500), 0.6)) {
+                moveSpeed = 1.2 + Math.min(score / 400, 2.0);
             }
 
-            let isSmall = score > 350 && Math.random() < Math.min((score - 350) / 1000, 0.6);
+            let isSmall = score > 350 && Math.random() < Math.min((score - 350) / 1000, 0.5);
 
             let width = isSmall ? 50 : 75;
             let x = Math.random() * (canvas.width - width);
 
-            platforms.push(new Platform(x, y, isCracked, moveSpeed, isSmall));
+            platforms.push(new Platform(x, lastPlatformY, isCracked, moveSpeed, isSmall));
         }
 
         platforms = platforms.filter(p => p.y - cameraY < canvas.height + 50);
