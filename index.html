@@ -7,9 +7,9 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body {
-            background: #060b17;
+            background-color: #121212;
             color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,17 +22,17 @@
             width: 100%;
             max-width: 420px;
             height: 650px;
-            background: linear-gradient(180deg, #0a1128 0%, #101f42 50%, #070d1e 100%);
-            border: 3px solid #FF6600;
-            border-radius: 16px;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.25), inset 0 0 15px rgba(0, 0, 0, 0.5);
+            background-color: #1a1a1a;
+            border: 3px solid #ff6600;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
             overflow: hidden;
         }
         canvas { display: block; width: 100%; height: 100%; }
         .overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(6, 11, 23, 0.92);
+            background: rgba(18, 18, 18, 0.94);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -42,45 +42,49 @@
             z-index: 10;
         }
         h1 { 
-            color: #FF6600; 
-            font-size: 26px; 
+            color: #ff6600; 
+            font-size: 28px; 
+            font-weight: 800;
             margin-bottom: 8px; 
             text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(255,102,0,0.5);
+            letter-spacing: 1px;
         }
-        p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; line-height: 1.4; }
+        p { color: #cccccc; font-size: 14px; margin-bottom: 20px; line-height: 1.4; }
         .btn {
-            background: linear-gradient(135deg, #FF6600 0%, #d95300 100%);
-            color: #fff;
+            background-color: #ff6600;
+            color: #ffffff;
             border: none;
             padding: 14px 32px;
             font-size: 17px;
             font-weight: bold;
-            border-radius: 30px;
+            border-radius: 6px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.5);
+            box-shadow: 0 4px 10px rgba(255, 102, 0, 0.4);
             text-transform: uppercase;
             letter-spacing: 1px;
+            transition: background 0.2s;
         }
+        .btn:active { background-color: #e05500; }
         .score-board {
             position: absolute;
             top: 12px; left: 15px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            color: #00E5FF;
+            color: #ffffff;
             z-index: 5;
-            background: rgba(0, 0, 0, 0.4);
+            background: #262626;
             padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 6px;
+            border: 1px solid #ff6600;
         }
+        .score-board span { color: #ff6600; }
         .discount-badge {
             margin-top: 15px;
             padding: 12px 18px;
-            background: rgba(0, 229, 255, 0.1);
-            border: 1px solid #00E5FF;
-            border-radius: 10px;
-            color: #00E5FF;
+            background: #262626;
+            border: 1px solid #ff6600;
+            border-radius: 8px;
+            color: #ffffff;
             font-weight: bold;
             font-size: 15px;
         }
@@ -94,14 +98,14 @@
     
     <div id="start-screen" class="overlay">
         <h1>PRO GLASS JUMP</h1>
-        <p>Toca la mitad <b>IZQUIERDA</b> o <b>DERECHA</b> de la pantalla para mover la esfera y saltar.</p>
-        <p style="color: #00E5FF; font-size: 13px;">⚠️ Evita los cristales rotos: se destruyen al pisarlos y te hacen caer.</p>
+        <p>Toca la mitad <b>IZQUIERDA</b> o <b>DERECHA</b> de la pantalla para moverte.</p>
+        <p style="color: #ff6600; font-size: 13px;">⚠️ Cristales fisurados: dan <b>UN SOLO SALTO</b> antes de destruirse.</p>
         <button class="btn" onclick="startGame()">¡JUGAR!</button>
     </div>
 
     <div id="gameover-screen" class="overlay" style="display: none;">
-        <h1>¡CRISTAL ROTO!</h1>
-        <p>Alcanzaste una altura de: <br><strong id="final-score" style="font-size: 26px; color: #fff;">0m</strong></p>
+        <h1>¡TE HAS CAÍDO!</h1>
+        <p>Alcanzaste una altura de: <br><strong id="final-score" style="font-size: 26px; color: #ff6600;">0m</strong></p>
         <div id="prize-info" class="discount-badge"></div>
         <button class="btn" style="margin-top: 20px;" onclick="startGame()">REINTENTAR</button>
     </div>
@@ -126,19 +130,16 @@
             this.y = canvas.height - 120;
             this.vy = 0;
             this.vx = 0;
-            this.jumpForce = -11;
+            this.jumpForce = -11.5;
             this.gravity = 0.42;
         }
 
         draw() {
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = '#FF6600';
-            ctx.fillStyle = '#FF6600';
+            ctx.fillStyle = '#ff6600';
             ctx.beginPath();
             ctx.arc(this.x + 14, this.y - cameraY + 14, 14, 0, Math.PI * 2);
             ctx.fill();
             
-            ctx.shadowBlur = 0;
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
             ctx.arc(this.x + 9, this.y - cameraY + 9, 4, 0, Math.PI * 2);
@@ -172,25 +173,23 @@
             ctx.translate(this.x, this.y - cameraY);
 
             if (this.isCracked) {
-                ctx.fillStyle = 'rgba(239, 68, 68, 0.35)';
-                ctx.strokeStyle = '#ef4444';
+                ctx.fillStyle = 'rgba(255, 102, 0, 0.25)';
+                ctx.strokeStyle = '#ff6600';
                 ctx.lineWidth = 2;
                 this.drawWindshieldShape();
 
-                ctx.strokeStyle = '#fca5a5';
+                ctx.strokeStyle = '#ffa366';
                 ctx.beginPath();
                 ctx.moveTo(15, 5); ctx.lineTo(40, 12); ctx.lineTo(65, 4);
                 ctx.moveTo(30, 14); ctx.lineTo(45, 3);
                 ctx.stroke();
             } else {
-                ctx.fillStyle = 'rgba(0, 51, 102, 0.7)';
-                ctx.strokeStyle = '#00E5FF';
+                ctx.fillStyle = '#262626';
+                ctx.strokeStyle = '#cccccc';
                 ctx.lineWidth = 2;
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = '#00E5FF';
                 this.drawWindshieldShape();
 
-                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillStyle = '#000000';
                 ctx.fillRect(4, 2, this.width - 8, 3);
             }
 
@@ -231,9 +230,23 @@
         }
 
         draw() {
-            ctx.fillStyle = '#ef4444';
+            ctx.fillStyle = '#ff6600';
             ctx.fillRect(this.x, this.y - cameraY, this.size, this.size);
         }
+    }
+
+    function drawBackgroundText() {
+        ctx.save();
+        ctx.fillStyle = '#222222';
+        ctx.font = '900 32px "Segoe UI", Roboto, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        let startY = - (cameraY * 0.3) % 200;
+        for (let y = startY - 200; y < canvas.height + 200; y += 200) {
+            ctx.fillText('PRO GLASS JUMP', canvas.width / 2, y);
+        }
+        ctx.restore();
     }
 
     function init() {
@@ -246,10 +259,10 @@
 
         platforms.push(new Platform(canvas.width / 2 - 40, canvas.height - 50, false));
 
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 9; i++) {
             let x = Math.random() * (canvas.width - 80);
-            let y = canvas.height - 130 - (i * 75);
-            let isCracked = i > 1 && Math.random() < 0.3;
+            let y = canvas.height - 115 - (i * 65);
+            let isCracked = i > 1 && Math.random() < 0.25;
             platforms.push(new Platform(x, y, isCracked));
         }
     }
@@ -294,7 +307,7 @@
         player.update();
 
         if (player.y - cameraY < canvas.height / 2) {
-            cameraY = player.y - canvas.height / 2;
+            cameraY = player.y - cameraY < canvas.height / 2 ? player.y - canvas.height / 2 : cameraY;
             score = Math.max(score, Math.floor((canvas.height - 120 - player.y) / 10));
             scoreEl.innerText = score;
         }
@@ -307,12 +320,11 @@
                     player.y + player.height >= p.y &&
                     player.y + player.height <= p.y + p.height + player.vy
                 ) {
+                    player.vy = player.jumpForce;
+                    
                     if (p.isCracked) {
                         p.broken = true;
                         createBreakParticles(p.x, p.y);
-                        player.vy = 2;
-                    } else {
-                        player.vy = player.jumpForce;
                     }
                 }
             });
@@ -321,8 +333,8 @@
         let highestPlatform = platforms[platforms.length - 1];
         if (highestPlatform.y - cameraY > -100) {
             let x = Math.random() * (canvas.width - 80);
-            let y = highestPlatform.y - 75;
-            let isCracked = Math.random() < 0.32;
+            let y = highestPlatform.y - 65;
+            let isCracked = Math.random() < 0.25;
             platforms.push(new Platform(x, y, isCracked));
         }
 
@@ -335,7 +347,11 @@
             return;
         }
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        drawBackgroundText();
+
         platforms.forEach(p => p.draw());
         particles.forEach(p => p.draw());
         player.draw();
